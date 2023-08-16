@@ -1,0 +1,39 @@
+name: rdlm-acquire
+
+on:
+  workflow_call:
+    inputs:
+      RESOURCE_NAME:
+        description: "Name of the resource to acquire"
+        required: true
+        type: string
+
+      LIFETIME:
+        description: "Lifetime of the resource acquired"
+        required: true
+        type: string
+
+      WAIT:
+        description: "Wait time for the resource to acquire"
+        required: true
+        type: string
+      
+      RDLM_URL:
+        description: "Service path of the RDLM server running on the cluster"
+        required: true
+        type: string
+      
+jobs:
+  acquire-resource:
+    name: Acquire lock
+    runs-on: ${{ inputs.RESOURCE_NAME }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Run acquire.sh
+        env:
+          RDLM_URL: ${{ inputs.RDLM_URL }}
+        run: |
+          bash .github/scripts/acquire.sh ${{ inputs.RESOURCE_NAME }} ${{ inputs.LIFETIME }} ${{ inputs.WAIT }}
