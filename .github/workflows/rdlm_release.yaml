@@ -1,0 +1,28 @@
+name: rdlm-release
+on:
+  workflow_call:
+    inputs:
+      RESOURCE_NAME:
+        description: "Name of the resource to release"
+        required: true
+        type: string
+      
+      RDLM_URL:
+        description: "Service path of the RDLM server running on the cluster"
+        required: true
+        type: string
+      
+jobs:
+  release-resource:
+    name: Release lock
+    runs-on: ${{ inputs.RESOURCE_NAME }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Run release.sh
+        env:
+          RDLM_URL: ${{ inputs.RDLM_URL }}
+        run: |
+          bash .github/scripts/release.sh ${{ inputs.RESOURCE_NAME }}
