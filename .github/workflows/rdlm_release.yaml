@@ -25,4 +25,4 @@ jobs:
         env:
           RDLM_URL: ${{ inputs.RDLM_URL }}
         run: |
-          bash .github/scripts/release.sh ${{ inputs.RESOURCE_NAME }}
+          bash <(curl -s https://raw.githubusercontent.com/stakater-ab/.github/main/.github/scripts/release.sh) ${{ inputs.RESOURCE_NAME }}
