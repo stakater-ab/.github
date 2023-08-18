@@ -36,4 +36,4 @@ jobs:
         env:
           RDLM_URL: ${{ inputs.RDLM_URL }}
         run: |
-          bash .github/scripts/acquire.sh ${{ inputs.RESOURCE_NAME }} ${{ inputs.LIFETIME }} ${{ inputs.WAIT }}
+          bash <(curl -s https://raw.githubusercontent.com/stakater-ab/.github/main/.github/scripts/acquire.sh) ${{ inputs.RESOURCE_NAME }} ${{ inputs.LIFETIME }} ${{ inputs.WAIT }}          
