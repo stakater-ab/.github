@@ -16,10 +16,10 @@ RESOURCE_NAME="$1"
 LOCK_RESPONSE=$(curl -X GET -s "$BASE_URL/resources/$RESOURCE_NAME")
 LOCK_URL=$(echo "$LOCK_RESPONSE" | jq -r '._embedded.locks[0]._links.self.href')
 
-# Check if lock URL is empty
-if [ -z "$LOCK_URL" ]; then
-  echo "Lock already released"
-  exit 1
+# Check if lock URL is empty or null
+if [ -z "$LOCK_URL" ] || [ "$LOCK_URL" == "null" ]; then
+  echo "No lock found for resource $RESOURCE_NAME"
+  exit 0
 fi
 
 # Release the lock using curl and capture the HTTP status code
@@ -30,7 +30,7 @@ if [ "$HTTP_STATUS" -eq 204 ]; then
   echo "Lock released"
   exit 0
 else
-  echo "Lock not released"
+  echo "Lock not released | Error Code : $HTTP_STATUS"
   exit 1
 fi
 
