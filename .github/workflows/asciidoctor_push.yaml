@@ -1,0 +1,30 @@
+name: Push
+
+on:
+  workflow_call:
+    inputs:
+      document:
+        description: 'The path to the root of the document'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/redhat-cop/ubi8-asciidoctor:v2.1
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Generate PDF
+        run: |
+          cd $GITHUB_WORKSPACE/${{ inputs.document }}/ && ./generate-pdf -o main
+      - name: Upload generated PDF
+        uses: actions/upload-artifact@v3
+        with:
+          name: main.pdf
+          path: ${{ github.workspace }}/${{ inputs.document }}/main.pdf
+          if-no-files-found: error
