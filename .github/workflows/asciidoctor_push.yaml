@@ -23,7 +23,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/${{ inputs.document }}/ && ./generate-pdf -o main
       - name: Upload generated PDF
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: main.pdf
           path: ${{ github.workspace }}/${{ inputs.document }}/main.pdf
