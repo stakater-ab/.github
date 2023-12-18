@@ -17,6 +17,11 @@ on:
         required: false
         type: string
         default: 'en-US'
+      fail_on_error:
+        description: 'If reviewdog should exit with 1 when at least one error was reported'
+        required: false
+        type: boolean
+        default: true
     secrets:
       STAKATER_GITHUB_TOKEN:
         description: "Token for GitHub Container Registry authentication"
@@ -45,7 +50,7 @@ jobs:
       - name: Spell check
         uses: errata-ai/vale-action@v2.0.1
         with:
-          fail_on_error: true
+          fail_on_error: ${{ inputs.fail_on_error }}
           files: ${{ inputs.document }}/content
           vale_flags: ${{ inputs.vale_flags }}
         env:
