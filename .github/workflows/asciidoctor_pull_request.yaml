@@ -7,6 +7,16 @@ on:
         description: 'The path to the root of the document'
         required: true
         type: string
+      vale_flags:
+        description: 'Space-delimited list of flags for the Vale CLI. To see a full list of available flags, run vale -h.'
+        required: false
+        type: string
+        default: ""
+      spell_check_language:
+        description: 'Spell check language for LanguageTool'
+        required: false
+        type: string
+        default: 'en-US'
     secrets:
       STAKATER_GITHUB_TOKEN:
         description: "Token for GitHub Container Registry authentication"
@@ -37,6 +47,7 @@ jobs:
         with:
           fail_on_error: true
           files: ${{ inputs.document }}/content
+          vale_flags: ${{ inputs.vale_flags }}
         env:
           GITHUB_TOKEN: ${{secrets.STAKATER_GITHUB_TOKEN}}
 
@@ -50,7 +61,7 @@ jobs:
           github_token: ${{secrets.STAKATER_GITHUB_TOKEN}}
           reporter: github-pr-review
           level: error
-          language: 'en-US'
+          language: ${{ inputs.spell_check_language }}
           patterns: ${{ inputs.document }}/**/*.adoc
 
   generate_pdf:
