@@ -50,6 +50,7 @@ jobs:
       - name: Spell check
         uses: errata-ai/vale-action@v2.0.1
         with:
+          version: 2.30.0
           fail_on_error: ${{ inputs.fail_on_error }}
           files: ${{ inputs.document }}/content
           vale_flags: ${{ inputs.vale_flags }}
