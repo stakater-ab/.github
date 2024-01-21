@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: 'en-US'
+      vale_config:
+        description: 'A file path for a Vale config'
+        required: false
+        type: string
+        default: '.vale.ini'
     secrets:
       STAKATER_GITHUB_TOKEN:
         description: "Token for GitHub Container Registry authentication"
@@ -44,8 +49,13 @@ jobs:
           rm vale.tar.gz
       - name: Spell check
         run: |
-          ./vale sync
-          ./vale ${{ inputs.document }}/content
+          if [ "${{ inputs.vale_config }}" == ".vale.ini" ]; then
+            ./vale sync
+          else
+            cd ${{ inputs.document }}
+            ../vale sync
+          fi
+          ./vale --config='${{ inputs.vale_config }}' ${{ inputs.document }}/content
 
   style_check:
     runs-on: ubuntu-latest
