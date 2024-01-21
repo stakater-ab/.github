@@ -54,6 +54,7 @@ jobs:
           else
             cd ${{ inputs.document }}
             ../vale sync
+            cd ..
           fi
           ./vale --config='${{ inputs.vale_config }}' ${{ inputs.document }}/content
 
