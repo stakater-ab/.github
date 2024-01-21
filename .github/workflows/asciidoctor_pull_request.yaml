@@ -7,21 +7,11 @@ on:
         description: 'The path to the root of the document'
         required: true
         type: string
-      vale_flags:
-        description: 'Space-delimited list of flags for the Vale CLI. To see a full list of available flags, run vale -h.'
-        required: false
-        type: string
-        default: ""
       spell_check_language:
         description: 'Spell check language for LanguageTool'
         required: false
         type: string
         default: 'en-US'
-      fail_on_error:
-        description: 'If reviewdog should exit with 1 when at least one error was reported'
-        required: false
-        type: boolean
-        default: true
     secrets:
       STAKATER_GITHUB_TOKEN:
         description: "Token for GitHub Container Registry authentication"
@@ -47,15 +37,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      - name: Install Vale
+        run: |
+          wget https://github.com/errata-ai/vale/releases/download/v3.0.5/vale_3.0.5_Linux_64-bit.tar.gz -O vale.tar.gz
+          tar -xvzf vale.tar.gz vale
+          rm vale.tar.gz
       - name: Spell check
-        uses: errata-ai/vale-action@v2.0.1
-        with:
-          version: 2.30.0
-          fail_on_error: ${{ inputs.fail_on_error }}
-          files: ${{ inputs.document }}/content
-          vale_flags: ${{ inputs.vale_flags }}
-        env:
-          GITHUB_TOKEN: ${{secrets.STAKATER_GITHUB_TOKEN}}
+        run: |
+          ./vale sync
+          ./vale ${{ inputs.document }}/content
 
   style_check:
     runs-on: ubuntu-latest
