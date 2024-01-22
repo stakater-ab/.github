@@ -47,6 +47,8 @@ jobs:
           wget https://github.com/errata-ai/vale/releases/download/v3.0.5/vale_3.0.5_Linux_64-bit.tar.gz -O vale.tar.gz
           tar -xvzf vale.tar.gz vale
           rm vale.tar.gz
+      - name: Install Asciidoctor
+        run: sudo apt-get install -y asciidoctor
       - name: Spell check
         run: |
           if [ "${{ inputs.vale_config }}" == ".vale.ini" ]; then
