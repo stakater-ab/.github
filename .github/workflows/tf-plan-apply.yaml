@@ -88,7 +88,7 @@ jobs:
         allow-repeats: false
 
     - name: Notify Slack
-      uses: 8398a7/action-slack@v3.15.1
+      uses: 8398a7/action-slack@v3.16.2
       if: always() # Pick up events even if the job fails or is canceled.
       with:
         status: ${{ job.status }}
