@@ -1,0 +1,97 @@
+name: OpenTofu Plan & Apply On Successful PR
+
+on:
+  workflow_call:
+    secrets:
+      OPENTOFU_GITHUB_OWNER:
+        description: "This is the target GitHub organization, used by OpenTofu github provider"
+        required: false
+
+      OPENTOFU_GITHUB_TOKEN:
+        description: "This is the target GitHub token, used by OpenTofu github provider"
+        required: false
+
+      STAKATER_GITHUB_TOKEN:
+        description: "GitHub token to write a message on the PR if workflow failed"
+        required: true
+
+      SSH_PRIVATE_KEY:
+        description: "SSH Key to auth for fetch OpenTofu modules from github"
+        required: true
+
+      OT_API_TOKEN:
+        description: "OpenTofu api token"
+        required: true
+
+      SLACK_WEBHOOK_URL:
+        description: "Secret to send success/failure message to slack"
+        required: true
+
+env:
+  GITHUB_OWNER: ${{ secrets.OPENTOFU_GITHUB_OWNER }}
+  GITHUB_TOKEN: ${{ secrets.OPENTOFU_GITHUB_TOKEN }}
+  SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
+jobs:
+  opentofu-plan-or-apply-on-main:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Init module auth
+      run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+
+    - uses: opentofu/setup-opentofu@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.OT_API_TOKEN }}
+
+    - name: OpenTofu fmt
+      id: fmt
+      run: tofu fmt -check
+      continue-on-error: true
+
+    - name: OpenTofu Init
+      id: init
+      run: tofu init
+
+    - name: OpenTofu Validate
+      id: validate
+      run: tofu validate
+
+    - name: OpenTofu Plan No Lock
+      id: plan-no-lock
+      if: github.event_name == 'pull_request'
+      run: tofu plan -lock=false
+
+    - name: OpenTofu Plan
+      id: plan
+      if: github.event_name == 'push'
+      run: tofu plan -out=ot.plan
+
+    - name: OpenTofu Apply
+      id: apply
+      if: github.event_name == 'push'
+      run: tofu apply ot.plan
+
+    - name: Notify Failure
+      if: failure()
+      uses: mshick/add-pr-comment@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+      with:
+        message: '@${{ github.actor }} Pipeline execution has failed! Please check latest actions before proceeding.'
+        allow-repeats: false
+
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3.16.2
+      if: always() # Pick up events even if the job fails or is canceled.
+      with:
+        status: ${{ job.status }}
+        fields: repo,author,action,eventName,ref,workflow
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
