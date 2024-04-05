@@ -83,6 +83,10 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+      - name: Setup Docker on MacOS Runner
+        run: |
+          brew install docker
+          colima start
       - name: Generate PDF
         run: |
           cd $GITHUB_WORKSPACE/${{ inputs.document }}/ && ./generate-pdf -o PR${{ github.event.number }}
