@@ -74,7 +74,7 @@ jobs:
           patterns: ${{ inputs.document }}/**/*.adoc
 
   generate_pdf:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     container:
       image: quay.io/redhat-cop/ubi8-asciidoctor:v2.1
     steps:
