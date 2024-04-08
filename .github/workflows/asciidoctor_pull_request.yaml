@@ -7,16 +7,6 @@ on:
         description: 'The path to the root of the document'
         required: true
         type: string
-      spell_check_language:
-        description: 'Spell check language for LanguageTool'
-        required: false
-        type: string
-        default: 'en-US'
-      vale_config:
-        description: 'A file path for a Vale config'
-        required: false
-        type: string
-        default: '.vale.ini'
     secrets:
       STAKATER_GITHUB_TOKEN:
         description: "Token for GitHub Container Registry authentication"
