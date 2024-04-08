@@ -74,15 +74,17 @@ jobs:
           patterns: ${{ inputs.document }}/**/*.adoc
 
   generate_pdf:
-    runs-on: ubuntu-latest
-    container:
-      image: quay.io/redhat-cop/ubi8-asciidoctor:v2.1
+    runs-on: macos-latest
     steps:
       - name: Checkout source files
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
+      - name: Setup Docker on MacOS Runner
+        run: |
+          brew install docker
+          colima start
       - name: Generate PDF
         run: |
           cd $GITHUB_WORKSPACE/${{ inputs.document }}/ && ./generate-pdf -o PR${{ github.event.number }}
