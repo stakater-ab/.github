@@ -20,6 +20,7 @@ jobs:
       - name: Setup Docker on MacOS Runner
         run: |
           brew install docker
+          brew install colima
           colima start
       - name: Generate PDF
         run: |
