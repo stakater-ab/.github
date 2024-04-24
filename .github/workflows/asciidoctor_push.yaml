@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    # ARM64 processors (M1, M2, M3 series) used on macos-14 images are unsupported
+    # ARM64 processors (M1, M2, M3 series) used on macos-14 images are unsupported, they do not support nested virtualization
     runs-on: macos-13
     steps:
       - name: Check out code
