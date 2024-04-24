@@ -75,7 +75,7 @@ jobs:
 
   generate_pdf:
     # ARM64 processors (M1, M2, M3 series) used on macos-14 images are unsupported, they do not support nested virtualization
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - name: Checkout source files
         uses: actions/checkout@v4
