@@ -27,11 +27,11 @@ on:
         description: "Secret to send success/failure message to slack"
         required: true
         
-      GRAFANA_ONCALL_ACCESS_TOKEN:
+      TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN:
         description: "Grafana OnCall api token"
         required: false
 
-      GRAFANA_ONCALL_URL:
+      TF_VAR_GRAFANA_ONCALL_URL:
         description: "Grafana OnCall URL"
         required: false
 
