@@ -36,6 +36,8 @@ on:
         required: false
 
 env:
+  TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN: ${{ secrets.TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN }}
+  TF_VAR_GRAFANA_ONCALL_URL: ${{ secrets.TF_VAR_GRAFANA_ONCALL_URL }}
   GITHUB_OWNER: ${{ secrets.OPENTOFU_GITHUB_OWNER }}
   GITHUB_TOKEN: ${{ secrets.OPENTOFU_GITHUB_TOKEN }}
   SSH_AUTH_SOCK: /tmp/ssh_agent.sock
