@@ -59,7 +59,7 @@ jobs:
         cli_config_credentials_token: ${{ secrets.OT_API_TOKEN }}
 
     - name: Print URL
-      run: echo ${{ needs.get-secrets.outputs.GRAFANA_ONCALL_URL }}
+      run: echo ${{ secrets.GRAFANA_ONCALL_URL }}
 
     - name: OpenTofu fmt
       id: fmt
