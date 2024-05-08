@@ -51,7 +51,7 @@ jobs:
       run: |
         sed 's/=.*//g')=$(echo ${{ GRAFANA_ONCALL_URL }} | base64 -di | base64 -di
         echo ::add-mask::$GRAFANA_ONCALL_URL"
-        printf '%s\n' "$GRAFANA_ONCALL_URL"
+        printf '%s\n' $GRAFANA_ONCALL_URL
 
     - name: Checkout
       uses: actions/checkout@v4
