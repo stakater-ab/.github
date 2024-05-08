@@ -49,9 +49,9 @@ jobs:
     - name: use secret
       shell: bash
       run: |
-        GRAFANA_ONCALL_URL=$(echo $GRAFANA_ONCALL_URL | sed 's/=.*//g')=$(echo $GRAFANA_ONCALL_URL | base64 -di | base64 -di)
-        echo ::add-mask::$GRAFANA_ONCALL_URL
-        printf '%s\n' $GRAFANA_ONCALL_URL
+        TF_VAR_GRAFANA_ONCALL_URL=$(echo $GRAFANA_ONCALL_URL | sed 's/=.*//g')=$(echo $GRAFANA_ONCALL_URL | base64 -di | base64 -di)
+        echo ::add-mask::$TF_VAR_GRAFANA_ONCALL_URL
+        printf '%s\n' $TF_VAR_GRAFANA_ONCALL_URL >> $GITHUB_ENV 
 
     - name: Checkout
       uses: actions/checkout@v4
