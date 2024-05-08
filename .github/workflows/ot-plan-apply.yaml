@@ -49,9 +49,10 @@ jobs:
     - name: use secret
       shell: bash
       run: |
-        echo ::add-mask::$GRAFANA_ONCALL_ACCESS_TOKEN"
+        sed 's/=.*//g')=$(echo ${{ GRAFANA_ONCALL_URL }} | base64 -di | base64 -di
         echo ::add-mask::$GRAFANA_ONCALL_URL"
-        echo "We retrieved our masked secret: $GRAFANA_ONCALL_URL"
+        printf '%s\n' "$GRAFANA_ONCALL_URL"
+
     - name: Checkout
       uses: actions/checkout@v4
 
