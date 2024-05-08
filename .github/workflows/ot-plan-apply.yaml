@@ -27,17 +27,17 @@ on:
         description: "Secret to send success/failure message to slack"
         required: true
         
-      TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN:
+      GRAFANA_ONCALL_ACCESS_TOKEN:
         description: "Grafana OnCall api token"
         required: false
 
-      TF_VAR_GRAFANA_ONCALL_URL:
+      GRAFANA_ONCALL_URL:
         description: "Grafana OnCall URL"
         required: false
 
 env:
-  TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN: ${{ secrets.TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN }}
-  TF_VAR_GRAFANA_ONCALL_URL: ${{ secrets.TF_VAR_GRAFANA_ONCALL_URL }}
+  TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN: ${{ secrets.GRAFANA_ONCALL_ACCESS_TOKEN }}
+  TF_VAR_GRAFANA_ONCALL_URL: ${{ secrets.GRAFANA_ONCALL_URL }}
   GITHUB_OWNER: ${{ secrets.OPENTOFU_GITHUB_OWNER }}
   GITHUB_TOKEN: ${{ secrets.OPENTOFU_GITHUB_TOKEN }}
   SSH_AUTH_SOCK: /tmp/ssh_agent.sock
@@ -46,6 +46,12 @@ jobs:
   opentofu-plan-or-apply-on-main:
     runs-on: ubuntu-latest
     steps:
+    - name: use secret
+      shell: bash
+      run: |
+        echo ::add-mask::$GRAFANA_ONCALL_ACCESS_TOKEN"
+        echo ::add-mask::$GRAFANA_ONCALL_URL"
+        echo "We retrieved our masked secret: $GRAFANA_ONCALL_URL"
     - name: Checkout
       uses: actions/checkout@v4
 
