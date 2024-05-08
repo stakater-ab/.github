@@ -49,7 +49,7 @@ jobs:
     - name: use secret
       shell: bash
       run: |
-        sed 's/=.*//g')=$(echo $GRAFANA_ONCALL_URL | base64 -di | base64 -di
+        sed 's/=.*//g')=$(echo $GRAFANA_ONCALL_URL | base64 -di | base64 -di)
         echo ::add-mask::$GRAFANA_ONCALL_URL"
         printf '%s\n' $GRAFANA_ONCALL_URL
 
