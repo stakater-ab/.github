@@ -31,10 +31,10 @@ on:
         required: false
 
 env:
-  env_vars: ${{ secrets.env_vars }}
   GITHUB_OWNER: ${{ secrets.OPENTOFU_GITHUB_OWNER }}
   GITHUB_TOKEN: ${{ secrets.OPENTOFU_GITHUB_TOKEN }}
   SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+  env_vars: ${{ secrets.env_vars }}
 
 jobs:
   opentofu-plan-or-apply-on-main:
