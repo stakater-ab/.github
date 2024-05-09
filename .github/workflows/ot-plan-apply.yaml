@@ -44,6 +44,7 @@ jobs:
       run: |
           for i in $env_vars; do
             i=$(echo $i | sed 's/=.*//g')=$(echo ${i#*=} | base64 -di | base64 -di)
+            echo $i
             echo ::add-mask::${i#*=}
             printf '%s\n' "$i" >> $GITHUB_ENV
           done
