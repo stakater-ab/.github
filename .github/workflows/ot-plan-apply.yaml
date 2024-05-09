@@ -35,10 +35,25 @@ on:
         description: "Grafana OnCall URL"
         required: false
 
+      AWS_ACCESS_KEY_ID:
+        description: "AWS Access Key ID"
+        required: false
+
+      AWS_SECRET_ACCESS_KEY:
+        description: "AWS Secret Access Key"
+        required: false
+
+      AWS_DEFAULT_REGION:
+        description: "AWS Default Region"
+        required: false
+
 env:
   GITHUB_OWNER: ${{ secrets.OPENTOFU_GITHUB_OWNER }}
   GITHUB_TOKEN: ${{ secrets.OPENTOFU_GITHUB_TOKEN }}
   SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
 jobs:
   opentofu-plan-or-apply-on-main:
