@@ -49,7 +49,7 @@ jobs:
     - name: use secret
       shell: bash
       run: |
-        GRAFANA_ONCALL_ACCESS_TOKEN = echo ${{ secrets.GRAFANA_ONCALL_ACCESS_TOKEN }}
+        GRAFANA_ONCALL_ACCESS_TOKEN =$(echo ${{ secrets.GRAFANA_ONCALL_ACCESS_TOKEN }})
         TF_VAR_GRAFANA_ONCALL_URL=$(echo $GRAFANA_ONCALL_ACCESS_TOKEN | sed 's/=.*//g')=$(echo ${GRAFANA_ONCALL_URL#*=} | base64 -di | base64 -di)
         echo ::add-mask::$TF_VAR_GRAFANA_ONCALL_URL
         printf '%s\n' $TF_VAR_GRAFANA_ONCALL_URL >> $GITHUB_ENV
