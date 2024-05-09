@@ -53,8 +53,7 @@ jobs:
         echo ::add-mask::${TF_VAR_GRAFANA_ONCALL_URL#*=}
         printf '%s\n' $TF_VAR_GRAFANA_ONCALL_URL >> $GITHUB_ENV
 
-        GRAFANA_ONCALL_ACCESS_TOKEN=$(echo ${{ secrets.GRAFANA_ONCALL_ACCESS_TOKEN }})
-        TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN=$(echo $GRAFANA_ONCALL_ACCESS_TOKEN | sed 's/=.*//g')=$(echo ${GRAFANA_ONCALL_ACCESS_TOKEN#*=} | base64 -di | base64 -di)
+        TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN=$(echo $TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN | sed 's/=.*//g')=$(echo ${TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN#*=} | base64 -di | base64 -di)
         echo ::add-mask::${TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN#*=}
         printf '%s\n' $TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN >> $GITHUB_ENV
 
