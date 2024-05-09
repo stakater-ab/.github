@@ -58,7 +58,9 @@ jobs:
         TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN=$(echo $GRAFANA_ONCALL_ACCESS_TOKEN | sed 's/=.*//g')=$(echo ${GRAFANA_ONCALL_ACCESS_TOKEN#*=} | base64 -di | base64 -di)
         echo ::add-mask::$TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN
         printf '%s\n' $TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN >> $GITHUB_ENV
-
+    - name: Validate credentials
+      run: |
+        echo $TF_VAR_GRAFANA_ONCALL_URL
     - name: Checkout
       uses: actions/checkout@v4
 
