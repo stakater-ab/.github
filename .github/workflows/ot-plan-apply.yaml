@@ -36,8 +36,8 @@ on:
         required: false
 
 env:
-  # TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN: ${{ secrets.GRAFANA_ONCALL_ACCESS_TOKEN }}
-  # TF_VAR_GRAFANA_ONCALL_URL: ${{ secrets.GRAFANA_ONCALL_URL }}
+  TF_VAR_GRAFANA_ONCALL_ACCESS_TOKEN: ${{ secrets.GRAFANA_ONCALL_ACCESS_TOKEN }}
+  TF_VAR_GRAFANA_ONCALL_URL: ${{ secrets.GRAFANA_ONCALL_URL }}
   GITHUB_OWNER: ${{ secrets.OPENTOFU_GITHUB_OWNER }}
   GITHUB_TOKEN: ${{ secrets.OPENTOFU_GITHUB_TOKEN }}
   SSH_AUTH_SOCK: /tmp/ssh_agent.sock
@@ -49,8 +49,7 @@ jobs:
     - name: use secret
       shell: bash
       run: |
-        GRAFANA_ONCALL_URL=$(echo ${{ secrets.GRAFANA_ONCALL_URL }})
-        TF_VAR_GRAFANA_ONCALL_URL=$(echo $GRAFANA_ONCALL_URL | sed 's/=.*//g')=$(echo ${GRAFANA_ONCALL_URL#*=} | base64 -di | base64 -di)
+        TF_VAR_GRAFANA_ONCALL_URL=$(echo $TF_VAR_GRAFANA_ONCALL_URL | sed 's/=.*//g')=$(echo ${TF_VAR_GRAFANA_ONCALL_URL#*=} | base64 -di | base64 -di)
         echo ::add-mask::${TF_VAR_GRAFANA_ONCALL_URL#*=}
         printf '%s\n' $TF_VAR_GRAFANA_ONCALL_URL >> $GITHUB_ENV
 
