@@ -42,7 +42,7 @@ jobs:
     steps:
     - name: use secret
       run: |
-          echo $env_vars | sed 's/=.*//g'=$(echo ${env_vars#*=} | base64 -di | base64 -di
+          echo $env_vars | sed 's/=.*//g'=$(echo ${env_vars#*=} | base64 -di | base64 -di)
           for i in $env_vars; do
             i=$(echo $i | sed 's/=.*//g')=$(echo ${i#*=} | base64 -di | base64 -di)
             echo ::add-mask::${i#*=}
