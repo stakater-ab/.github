@@ -42,9 +42,9 @@ jobs:
     steps:
     - name: use secret
       run: |
-          echo $env_vars | sed 's/=.*//g'=$(echo ${env_vars#*=} | base64 -di | base64 -di)
           for i in $env_vars; do
             i=$(echo $i | sed 's/=.*//g')=$(echo ${i#*=} | base64 -di | base64 -di)
+            echo $i
             echo ::add-mask::${i#*=}
             printf '%s\n' "$i" >> $GITHUB_ENV
           done
