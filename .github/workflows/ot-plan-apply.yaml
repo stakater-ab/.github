@@ -47,6 +47,18 @@ on:
         description: "AWS Default Region"
         required: false
 
+      ARM_CLIENT_ID:
+        description: "Azure ARM Client ID"
+        required: false
+
+      ARM_CLIENT_SECRET:
+        description: "Azure ARM Client Secret"
+        required: false
+
+      ARM_TENANT_ID:
+        description: "Azure ARM Tenant ID"
+        required: false
+
 env:
   GITHUB_OWNER: ${{ secrets.OPENTOFU_GITHUB_OWNER }}
   GITHUB_TOKEN: ${{ secrets.OPENTOFU_GITHUB_TOKEN }}
@@ -54,6 +66,9 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
 jobs:
   opentofu-plan-or-apply-on-main:
