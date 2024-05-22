@@ -27,14 +27,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+      - name: Run linkspector
+        uses: umbrelladocs/action-linkspector@v1
         with:
-          node-version: '18.x'
-      - name: Install tool
-        run: npm install -g asciidoc-link-check@1.0.17
-      - name: Check links
-        run: find ${{ inputs.document }}/content -name \*.adoc -exec asciidoc-link-check -p {} \;
+          github_token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+          reporter: github-pr-review
+          fail_on_error: true
+          filter_mode: nofilter
 
   spell_check:
     runs-on: ubuntu-latest
