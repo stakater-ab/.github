@@ -90,3 +90,4 @@ jobs:
           path: ${{ github.workspace }}/${{ inputs.document }}/PR${{ github.event.number }}.pdf
           retention-days: 5
           if-no-files-found: error
+          overwrite: true
