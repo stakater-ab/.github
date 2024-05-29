@@ -74,8 +74,6 @@ jobs:
 
   generate_pdf:
     runs-on: ubuntu-latest
-    container:
-      image: quay.io/redhat-cop/ubi8-asciidoctor:v2.1
     steps:
       - name: Checkout source files
         uses: actions/checkout@v4
