@@ -34,7 +34,7 @@ env:
 
 jobs:
   terraform-plan-or-apply-on-main:
-    runs-on: nonprod
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
