@@ -26,4 +26,3 @@ jobs:
           name: main.pdf
           path: ${{ github.workspace }}/${{ inputs.document }}/main.pdf
           if-no-files-found: error
-          overwrite: true
