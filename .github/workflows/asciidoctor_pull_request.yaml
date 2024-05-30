@@ -82,12 +82,11 @@ jobs:
           submodules: recursive
       - name: Generate PDF
         run: |
-          cd $GITHUB_WORKSPACE/${{ inputs.document }}/ && ./generate-pdf -o PR${{ github.event.number }}
+          cd $GITHUB_WORKSPACE/${{ inputs.document }}/ && ./generate-pdf -o PR-${{ github.event.number }}-${{ github.run_attempt }}
       - name: Upload generated PDF
         uses: actions/upload-artifact@v4
         with:
-          name: PR${{ github.event.number }}.pdf
-          path: ${{ github.workspace }}/${{ inputs.document }}/PR${{ github.event.number }}.pdf
+          name: PR-${{ github.event.number }}-${{ github.run_attempt }}.pdf
+          path: ${{ github.workspace }}/${{ inputs.document }}/PR-${{ github.event.number }}-${{ github.run_attempt }}.pdf
           retention-days: 5
           if-no-files-found: error
-          overwrite: true
