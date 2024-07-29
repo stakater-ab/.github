@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0 # otherwise you will fail to push refs to dest repo
 
       - name: Push Latest Tag
-        uses: anothrNick/github-tag-action@1.69.0
+        uses: anothrNick/github-tag-action@1.70.0
         env:
           GITHUB_TOKEN: ${{ secrets.STAKATER_AB_REPOS }}
           WITH_V: true
