@@ -1,0 +1,26 @@
+{
+  "labels": [
+    "dependencies"
+  ],
+  "prConcurrentLimit": 0,
+  "hostRules": [
+    {
+      "hostType": "docker",
+      "matchHost": "ghcr.io",
+      "username": "{{ secrets.GHCR_USERNAME }}",
+      "password": "{{ secrets.GHCR_TOKEN }}"
+    },
+    {
+      "hostType": "docker",
+      "matchHost": "registry.connect.redhat.com",
+      "username": "{{ secrets.REGISTRY_CONNECT_REDHAT_USERNAME }}",
+      "password": "{{ secrets.REGISTRY_CONNECT_REDHAT_PASSWORD }}"
+    },
+    {
+      "hostType": "docker",
+      "matchHost": "registry.redhat.io",
+      "username": "{{ secrets.REGISTRY_REDHAT_USERNAME }}",
+      "password": "{{ secrets.REGISTRY_REDHAT_PASSWORD }}"
+    }
+  ]
+}
