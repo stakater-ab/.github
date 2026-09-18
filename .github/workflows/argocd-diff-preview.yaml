@@ -1,0 +1,215 @@
+name: ArgoCD Diff Preview (reusable)
+
+# Reusable ArgoCD Diff Preview for Stakater gitops repos.
+# Replaces the per-repo / per-cluster inline workflows (ztp-playbook-generated) that
+# rotted every migration by hardcoding a Vault URL + per-tree FILE_REGEX/paths.
+# All config is inputs — no hardcoded vault/tree here. Caller passes its cluster's values.
+# Tracked in SA-8566.
+
+on:
+  workflow_call:
+    inputs:
+      vault-url:
+        description: "OpenBao/Vault base URL (JWT auth endpoint), e.g. https://openbao.apps.<cluster>.stakater.cloud"
+        required: true
+        type: string
+      vault-role:
+        description: "githubactionsjwt JWT role. MUST have bound_audiences=[https://github.com/<org>]"
+        required: true
+        type: string
+      vault-secrets:
+        description: |
+          Multiline `secrets:` block for hashicorp/vault-action — the repo SSH deploy key.
+          Must map a key to output `sshPrivateKey`, e.g.:
+          stakater/data/<repo> sshPrivateKey | sshPrivateKey ;
+        required: true
+        type: string
+      argocd-repo-url:
+        description: "Git URL for the ArgoCD repository secret, e.g. git@github.com:stakater-ab/<repo>.git"
+        required: true
+        type: string
+      argocd-namespace:
+        description: "ArgoCD namespace (prod: rh-openshift-gitops-instance, nonprod: openshift-gitops)"
+        required: false
+        type: string
+        default: "openshift-gitops"
+      file-regex:
+        description: "Regex of Application-manifest paths to consider. Default matches any cluster's registry."
+        required: false
+        type: string
+        default: "/registry/"
+      tailnet:
+        description: "true when the target Vault is tailnet-only (adds a tailscale/github-action step)."
+        required: false
+        type: boolean
+        default: false
+      timeout:
+        description: "argocd-diff-preview render timeout (seconds). 180 default is too low for large trees."
+        required: false
+        type: number
+        default: 600
+      tool-version:
+        description: "dagandersen/argocd-diff-preview image tag."
+        required: false
+        type: string
+        default: "v0.1.6"
+    secrets:
+      TS_OAUTH_CLIENT_ID:
+        description: "Tailscale OAuth client id — required when tailnet: true."
+        required: false
+      TS_OAUTH_SECRET:
+        description: "Tailscale OAuth client secret — required when tailnet: true."
+        required: false
+      GHCR_TOKEN:
+        description: "ghcr.io read token for Helm/OCI chart sources."
+        required: false
+      GHCR_USERNAME:
+        description: "ghcr.io username."
+        required: false
+
+jobs:
+  diff-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for the Vault JWT
+      pull-requests: write
+    steps:
+      - name: Checkout the pull request branch as the target branch
+        uses: actions/checkout@v4
+        with:
+          path: pull-request
+
+      - name: Checkout the main branch as the base branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+
+      - name: Connect to Tailscale
+        if: ${{ inputs.tailnet }}
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Import Secrets from Vault
+        id: import-secrets
+        uses: hashicorp/vault-action@v3
+        with:
+          url: ${{ inputs.vault-url }}
+          method: jwt
+          path: githubactionsjwt
+          role: ${{ inputs.vault-role }}
+          secrets: ${{ inputs.vault-secrets }}
+
+      - name: Compute changed files (dynamic scope)
+        id: changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Render only the Applications whose files changed in this PR. This makes the
+          # tool touch a handful of apps instead of the whole tree (~70+), which:
+          #   - fixes the scope gap (a PR to any cluster tree gets a real preview), and
+          #   - kills the SSH-handshake storm / 180s timeout (few apps -> few git ls-remote).
+          FILES=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.number }}/files" \
+                    --paginate --jq '.[].filename' | paste -sd, -)
+          echo "files=${FILES}" >> "$GITHUB_OUTPUT"
+          echo "changed files: ${FILES:-<none>}"
+
+      - name: Prepare secrets for ArgoCD
+        env:
+          SSH_PRIVATE_KEY: ${{ steps.import-secrets.outputs.sshPrivateKey }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          REPO_URL: ${{ inputs.argocd-repo-url }}
+          NAMESPACE: ${{ inputs.argocd-namespace }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          REPO_FULL: ${{ github.repository }}
+        run: |
+          mkdir -p secrets
+          INSECURE_B64=$(printf '%s' "true" | base64 -w 0)
+          NAME_B64=$(printf '%s' "$REPO_NAME" | base64 -w 0)
+          SSH_PRIVATE_KEY_B64=$(printf '%s' "$SSH_PRIVATE_KEY" | base64 -w 0)
+          URL_B64=$(printf '%s' "$REPO_URL" | base64 -w 0)
+          TYPE_B64=$(printf '%s' "git" | base64 -w 0)
+          cat > secrets/secret.yaml <<EOF
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: private-repo
+            namespace: ${NAMESPACE}
+            labels:
+              argocd.argoproj.io/secret-type: repo-creds
+          stringData:
+            url: https://github.com/${REPO_FULL}
+            password: ${GH_TOKEN}
+            username: not-used
+          ---
+          apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: ${REPO_NAME}
+            namespace: ${NAMESPACE}
+            labels:
+              argocd.argoproj.io/secret-type: repository
+          data:
+            insecure: "${INSECURE_B64}"
+            name: "${NAME_B64}"
+            sshPrivateKey: "${SSH_PRIVATE_KEY_B64}"
+            url: "${URL_B64}"
+            type: "${TYPE_B64}"
+          ---
+          apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: ghcr-helm-repo
+            namespace: ${NAMESPACE}
+            labels:
+              argocd.argoproj.io/secret-type: repository
+          stringData:
+            enableOCI: "true"
+            name: ghcr
+            password: ${GHCR_TOKEN}
+            type: helm
+            url: ghcr.io/stakater
+            username: ${GHCR_USERNAME}
+          EOF
+
+      - name: Generate Diff
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }} # untrusted PR branch name -> env, never inline in run
+          REPO: ${{ github.repository }}
+          FILE_REGEX: ${{ inputs.file-regex }}
+          FILES_CHANGED: ${{ steps.changes.outputs.files }}
+          RENDER_TIMEOUT: ${{ inputs.timeout }}
+          ARGOCD_NAMESPACE: ${{ inputs.argocd-namespace }}
+          TOOL_VERSION: ${{ inputs.tool-version }}
+        run: |
+          docker run \
+            --network=host \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$(pwd)/main:/base-branch" \
+            -v "$(pwd)/pull-request:/target-branch" \
+            -v "$(pwd)/output:/output" \
+            -v "$(pwd)/secrets:/secrets" \
+            -e TARGET_BRANCH="$TARGET_BRANCH" \
+            -e REPO="$REPO" \
+            -e FILE_REGEX="$FILE_REGEX" \
+            -e FILES_CHANGED="$FILES_CHANGED" \
+            -e TIMEOUT="$RENDER_TIMEOUT" \
+            -e ARGOCD_NAMESPACE="$ARGOCD_NAMESPACE" \
+            "dagandersen/argocd-diff-preview:$TOOL_VERSION"
+
+      - name: Post diff as comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file output/diff.md --edit-last || \
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file output/diff.md
