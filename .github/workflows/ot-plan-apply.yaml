@@ -88,10 +88,15 @@ jobs:
       with:
         cli_config_credentials_token: ${{ secrets.OT_API_TOKEN }}
 
+    # `-recursive` because without it only the root module is checked, so drift in
+    # any subdirectory (per-team/per-account modules, which is how most consumers
+    # are laid out) went unseen. No `continue-on-error`: the step previously ran,
+    # failed on drifted files, and had its result discarded -- a check that cannot
+    # fail is not a check. Consumers adopt this by bumping their version pin, so
+    # nothing goes red until a repo opts in.
     - name: OpenTofu fmt
       id: fmt
-      run: tofu fmt -check
-      continue-on-error: true
+      run: tofu fmt -check -recursive
 
     - name: OpenTofu Init
       id: init
