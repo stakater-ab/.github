@@ -41,6 +41,15 @@
       ],
       "groupName": "kubernetes libraries",
       "groupSlug": "kubernetes"
+    },
+    {
+      "description": "Majors need a human; label them so they can be filtered across repos.",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "addLabels": [
+        "major-update"
+      ]
     }
   ],
   "vulnerabilityAlerts": {
