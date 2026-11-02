@@ -1,11 +1,66 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Org preset: few, bundled PRs. Non-major updates land as one weekly PR, security fixes as one immediate PR, majors one per package.",
   "extends": [
     "config:recommended"
   ],
   "labels": [
     "dependencies"
   ],
-  "prConcurrentLimit": 0,
+  "timezone": "Europe/Stockholm",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "postUpdateOptions": [
+    "gomodTidy"
+  ],
+  "packageRules": [
+    {
+      "description": "Bundle every minor, patch and digest update into a single PR.",
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-non-major"
+    },
+    {
+      "description": "Kubernetes library minors are breaking in practice (controller-runtime pins a k8s minor); keep them out of the routine bundle so it stays mergeable.",
+      "matchPackageNames": [
+        "k8s.io/**",
+        "sigs.k8s.io/controller-runtime",
+        "sigs.k8s.io/controller-tools"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "groupName": "kubernetes libraries",
+      "groupSlug": "kubernetes"
+    },
+    {
+      "description": "Majors need a human; label them so they can be filtered across repos.",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "addLabels": [
+        "major-update"
+      ]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "groupName": "security fixes",
+    "schedule": [
+      "at any time"
+    ],
+    "addLabels": [
+      "security"
+    ]
+  },
   "hostRules": [
     {
       "hostType": "docker",
