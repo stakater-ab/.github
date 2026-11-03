@@ -84,7 +84,8 @@ jobs:
 ```
 
 `tailnet: true` requires `TS_OAUTH_CLIENT_ID` / `TS_OAUTH_SECRET` (repo or org secrets)
-and a tailnet ACL allowing `tag:ci` → the vault VIP `:8200`.
+and a tailnet ACL allowing `tag:ci` → the vault VIP on the port it's actually served on
+(`:8200` for a direct OpenBao API, `:443` when it's reached via an apps-ingress route).
 
 ## Per-vault prerequisites (once per target vault)
 
