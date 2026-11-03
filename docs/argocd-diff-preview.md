@@ -7,6 +7,10 @@ because each hardcoded a Vault URL + per-tree `FILE_REGEX`/`paths`.
 
 Tracked in **SA-8566**.
 
+> **This repo is public.** The examples below use placeholders — `<cluster>`,
+> `<gitops-repo>`, `<kv-path>`. Put the real vault hostnames, cluster IDs, JWT roles
+> and KV secret paths only in the private gitops repos' thin callers, never here.
+
 ## What it fixes vs the old inline workflows
 
 - **No hardcoded dead vault URLs** — the vault URL/role/secret are caller inputs. When
@@ -24,7 +28,7 @@ Tracked in **SA-8566**.
 
 ## Caller — prod (public vault, one workflow)
 
-`stakater-cloud-gitops-prod/.github/workflows/pull_request.yaml`:
+`<gitops-repo>/.github/workflows/pull_request.yaml`:
 
 ```yaml
 name: ArgoCD Diff Preview
@@ -39,11 +43,11 @@ jobs:
       id-token: write
       pull-requests: write
     with:
-      vault-url: https://openbao.apps.r0gt99vm.stakater.cloud
-      vault-role: stakater-ab-stakater-cloud-gitops-prod
+      vault-url: https://openbao.apps.<cluster>.stakater.cloud
+      vault-role: stakater-ab-<gitops-repo>
       vault-secrets: |
-        stakater/data/stakater-ab-stakater-cloud-gitops-prod sshPrivateKey | sshPrivateKey ;
-      argocd-repo-url: git@github.com:stakater-ab/stakater-cloud-gitops-prod.git
+        stakater/data/<kv-path> sshPrivateKey | sshPrivateKey ;
+      argocd-repo-url: git@github.com:stakater-ab/<gitops-repo>.git
       argocd-namespace: rh-openshift-gitops-instance
       file-regex: /registry/
       tailnet: false
@@ -69,11 +73,11 @@ jobs:
     uses: stakater-ab/.github/.github/workflows/argocd-diff-preview.yaml@main
     permissions: { contents: read, id-token: write, pull-requests: write }
     with:
-      vault-url: https://openbao.apps.eu-1.ndskuue5.stakater.cloud   # a live, stable vault
-      vault-role: stakater-ab-stakater-cloud-gitops-nonprod
+      vault-url: https://openbao.apps.<cluster>.stakater.cloud   # a live, stable vault
+      vault-role: stakater-ab-<gitops-repo>
       vault-secrets: |
-        stakater/data/stakater-cloud-gitops-nonprod sshPrivateKey | sshPrivateKey ;
-      argocd-repo-url: git@github.com:stakater-ab/stakater-cloud-gitops-nonprod.git
+        stakater/data/<kv-path> sshPrivateKey | sshPrivateKey ;
+      argocd-repo-url: git@github.com:stakater-ab/<gitops-repo>.git
       argocd-namespace: openshift-gitops
       tailnet: true
     secrets: inherit   # passes org GHCR_* + repo TS_OAUTH_* through
