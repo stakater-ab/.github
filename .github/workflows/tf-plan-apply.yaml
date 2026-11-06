@@ -80,7 +80,7 @@ jobs:
 
     - name: Notify Failure
       if: failure()
-      uses: mshick/add-pr-comment@v2
+      uses: mshick/add-pr-comment@v3
       env:
         GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
       with:
