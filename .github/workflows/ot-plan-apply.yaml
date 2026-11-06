@@ -84,7 +84,7 @@ jobs:
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
 
-    - uses: opentofu/setup-opentofu@v1
+    - uses: opentofu/setup-opentofu@v2
       with:
         cli_config_credentials_token: ${{ secrets.OT_API_TOKEN }}
 
